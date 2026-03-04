@@ -22,7 +22,7 @@ export default function Home() {
       <section className="w-full max-w-3xl">
         <h1 className="text-4xl sm:text-5xl font-bold mb-4 leading-tight">
           {/* split to create two-line headline with accent on second line */}
-          <span className="block text-[#2E2E2E]">Projectsmate</span>
+          <span className="block text-[#4A7C7A]">Projectsmate</span>
   
         </h1>
 
