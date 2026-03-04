@@ -2,40 +2,62 @@
 
 import "./globals.css";
 import { useState } from "react";
-
-// utility styles moved into Tailwind classes; responsive variants used inline below
-
-// (retained constants for legacy but not used)
-const containerStyle = {} as const;
-const headingStyle = {} as const;
-const paragraphStyle = {} as const;
+import { supabase } from "./lib/supabase";
 
 export default function Home() {
   const [joined, setJoined] = useState(false);
+  const [email, setEmail] = useState("");
+
+  async function joinWaitlist() {
+    if (!email) return;
+
+    const { error } = await supabase
+      .from("waitlist")
+      .insert([{ email }]);
+
+    if (!error) {
+      setJoined(true);
+      setEmail("");
+    } else {
+      console.error(error);
+    }
+  }
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center bg-[#F4F5F5] text-[#2E2E2E] text-center px-6 py-16 sm:px-8">
-      {/* subtle architectural grid */}
+
+      {/* architectural grid */}
       <div className="pointer-events-none absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'20\' height=\'20\'><path d=\'M20 0 L0 0 0 20\' fill=\'none\' stroke=\'%23e0e0e0\' stroke-width=\'0.5\'/></svg>')] bg-[length:20px_20px]"></div>
 
       {/* Hero */}
       <section className="w-full max-w-3xl">
         <h1 className="text-4xl sm:text-5xl font-bold mb-4 leading-tight">
-          {/* split to create two-line headline with accent on second line */}
           <span className="block text-[#4A7C7A]">Projectsmate</span>
-  
         </h1>
 
         <p className="text-lg sm:text-xl text-[#5A5A5A] mb-10">
           The financial operating system for architects.
         </p>
 
-        <button
-          onClick={() => setJoined(true)}
-          className="w-full sm:w-auto px-8 py-4 text-lg sm:text-xl bg-[#55636B] hover:bg-[#44555C] rounded-lg font-semibold text-white"
-        >
-          Join the Waitlist
-        </button>
+        {/* EMAIL INPUT */}
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="px-4 py-4 rounded-lg border border-gray-300 w-full sm:w-80 text-black"
+          />
+
+          <button
+            onClick={joinWaitlist}
+            className="px-8 py-4 text-lg bg-[#55636B] hover:bg-[#44555C] rounded-lg font-semibold text-white"
+          >
+            Join the Waitlist
+          </button>
+
+        </div>
 
         {joined && (
           <p className="mt-4 text-[#5A5A5A]">
@@ -46,7 +68,10 @@ export default function Home() {
 
       {/* Problem */}
       <section className="w-full max-w-3xl mt-24 text-left">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[#2E2E2E]">The Problem</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[#2E2E2E]">
+          The Problem
+        </h2>
+
         <p className="text-[#5A5A5A] leading-relaxed mb-4">
           Architects run their own studios—but the financial side is an
           afterthought. Projects are priced upfront and then evolve over months
@@ -55,7 +80,8 @@ export default function Home() {
           leaving principals blind to a project’s commercial health until
           billing or close.
         </p>
-       <p className="text-[#5A5A5A] leading-relaxed">
+
+        <p className="text-[#5A5A5A] leading-relaxed">
           Projectsmate connects efforts, stages, expenses and payments so
           principals can see profitability in real time—and act while there’s
           still time.
@@ -64,32 +90,40 @@ export default function Home() {
 
       {/* How it works */}
       <section className="w-full max-w-3xl mt-24 text-left">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[#2E2E2E]">How it works</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[#2E2E2E]">
+          How it works
+        </h2>
+
         <ul className="list-none p-0 text-[#5A5A5A]">
-            <li className="mb-4">
+          <li className="mb-4">
             • <strong>Define</strong> — structure projects with budgets,
             timelines and payment schedules linked to milestones
           </li>
+
           <li className="mb-4">
             • <strong>Capture</strong> — log effort, expenses, and payments in
             one place
           </li>
+
           <li className="mb-4">
-            • <strong>Translate</strong> — get a live profitability view: planned
-            vs actual margin, cost breakdowns, revenue vs outstanding, and more
+            • <strong>Translate</strong> — get a live profitability view:
+            planned vs actual margin, cost breakdowns, revenue vs outstanding
           </li>
         </ul>
       </section>
 
       {/* Why now */}
       <section className="w-full max-w-3xl mt-24 text-left">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[#2E2E2E]">Why now</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[#2E2E2E]">
+          Why now
+        </h2>
+
         <p className="text-[#5A5A5A] leading-relaxed">
-          Architecture studios are smaller, margins are tighter, and workflows are
-          fully digital. AI is reshaping professional services, but without
-          structured commercial data the insights are noise. The first platform to
-          define the financial operating layer for independent studios will be
-          foundational—and that window is open now. It won’t stay open for long.
+          Architecture studios are smaller, margins are tighter, and workflows
+          are fully digital. AI is reshaping professional services, but without
+          structured commercial data the insights are noise. The first platform
+          to define the financial operating layer for independent studios will
+          be foundational—and that window is open now.
         </p>
       </section>
 
@@ -97,6 +131,7 @@ export default function Home() {
       <footer className="mt-24 text-[#5A5A5A]">
         © {new Date().getFullYear()} Projectsmate.
       </footer>
+
     </main>
   );
 }
