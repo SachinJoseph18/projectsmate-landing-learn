@@ -1,27 +1,62 @@
 "use client";
 
 import "./globals.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "./lib/supabase";
 
 export default function Home() {
   const [joined, setJoined] = useState(false);
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [count, setCount] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  async function joinWaitlist() {
-    if (!email) return;
-
-    const { error } = await supabase
+useEffect(() => {
+  async function fetchCount() {
+    const { data, error } = await supabase
       .from("waitlist")
-      .insert([{ email }]);
+      .select("id");
 
-    if (!error) {
-      setJoined(true);
-      setEmail("");
-    } else {
-      console.error(error);
+    if (error) {
+      console.log(error);
+      return;
     }
+
+    setCount(data.length);
   }
+
+  fetchCount();
+}, []);
+
+async function joinWaitlist() {
+
+  if (!email) {
+    setMessage("Please enter your email.");
+    return;
+  }
+
+  setLoading(true);
+
+  const { error } = await supabase
+    .from("waitlist")
+    .insert([{ email }]);
+
+  setLoading(false);
+
+  if (error) {
+    if (error.message.includes("duplicate")) {
+      setMessage("Uh-oh. You're already on our list.");
+    } else {
+      setMessage("Something went wrong. Please try again.");
+    }
+    return;
+  }
+
+  setJoined(true);
+  setEmail("");
+  setMessage("You're on our list now.");
+  setCount(count + 1);
+}
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center bg-[#F4F5F5] text-[#2E2E2E] text-center px-6 py-16 sm:px-8">
@@ -39,6 +74,11 @@ export default function Home() {
           The financial operating system for architects.
         </p>
 
+        {count !== null && (
+          <p className="text-sm text-[#5A5A5A] mb-6">
+            <strong>{count}</strong> architects are already waiting.
+          </p>
+        )}
         {/* EMAIL INPUT */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
 
@@ -46,23 +86,30 @@ export default function Home() {
             type="email"
             placeholder="Enter your email"
             value={email}
+            autoFocus
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                joinWaitlist();
+              }
+            }}
             className="px-4 py-4 rounded-lg border border-gray-300 w-full sm:w-80 text-black"
           />
 
           <button
             onClick={joinWaitlist}
-            className="px-8 py-4 text-lg bg-[#55636B] hover:bg-[#44555C] rounded-lg font-semibold text-white"
+            disabled={loading || !email.includes("@")}
+            className="px-8 py-4 text-lg bg-[#55636B] hover:bg-[#44555C] rounded-lg font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Join the Waitlist
+            {loading ? "Joining..." : "Join the Waitlist"}
           </button>
 
         </div>
 
-        {joined && (
-          <p className="mt-4 text-[#5A5A5A]">
-            You're on the list.
-          </p>
+        {message && (
+        <p className="mt-4 text-sm text-[#5A5A5A]">
+        {message}
+        </p>
         )}
       </section>
 
