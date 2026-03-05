@@ -8,7 +8,7 @@ export default function Home() {
   const [joined, setJoined] = useState(false);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [count, setCount] = useState(null);
+  const [count, setCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
 useEffect(() => {
@@ -75,7 +75,7 @@ async function joinWaitlist() {
         </p>
 
         {count !== null && (
-          <p className="text-sm text-[#5A5A5A] mb-6">
+            <p className="text-sm text-[#5A5A5A] mb-6">
             <strong>{count}</strong> architects are already waiting.
           </p>
         )}
