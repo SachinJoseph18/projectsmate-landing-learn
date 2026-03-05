@@ -55,7 +55,7 @@ async function joinWaitlist() {
   setJoined(true);
   setEmail("");
   setMessage("You're on our list now.");
-  setCount(count + 1);
+  setCount((count ?? 0) + 1);
 }
 
   return (
